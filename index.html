@@ -111,7 +111,7 @@
   .xpnote{grid-column:1 / -1;font-size:12px;color:var(--muted);margin-top:-8px}
 
   /* ---------- TABS ---------- */
-  .tabs{position:sticky;top:0;z-index:20;display:flex;gap:8px;padding:calc(12px + var(--safe-top)) 0 10px;background:linear-gradient(rgba(11,22,48,.97) 75%, rgba(11,22,48,0))}
+  .tabs{margin-top:6px;position:sticky;top:0;z-index:20;display:flex;gap:8px;padding:calc(12px + var(--safe-top)) 0 10px;background:linear-gradient(rgba(11,22,48,.97) 75%, rgba(11,22,48,0))}
   .tab{flex:1;font-family:Bangers,Impact,sans-serif;font-size:19px;letter-spacing:1px;white-space:nowrap;padding:10px 4px;border:3px solid var(--ink);background:#fff;cursor:pointer;color:var(--ink);box-shadow:3px 3px 0 var(--ink);border-radius:3px}
   .tab.active{background:var(--red);color:#fff;transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
   #tab-cal,#tab-drills{scroll-margin-top:90px}
@@ -286,6 +286,7 @@
   .burst .jp{font-family:"Noto Sans JP",sans-serif;font-weight:900;font-size:26px;margin-top:6px}
   .burst .small{font-family:Bangers,Impact,sans-serif;font-size:20px;letter-spacing:1px;margin-top:6px;max-width:68%;line-height:1.15}
 
+  .sync-line{margin-top:12px;font-size:12px;font-weight:800;color:var(--muted)}
   .sync{margin-top:16px;padding-top:14px;border-top:2.5px dashed var(--ink);text-align:left}
   .sync h4{margin:0 0 6px;font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:18px;letter-spacing:1px}
   .sync .row2{display:flex;gap:8px}
@@ -331,25 +332,6 @@
 
 <div class="wrap">
 
-  <section class="panel player">
-    <div class="jersey" aria-label="Jersey number 10"><svg viewBox="0 0 100 110" aria-hidden="true">
-      <path d="M29 4 H40 Q50 26 60 4 H71 Q72 24 88 31 V106 H12 V31 Q28 24 29 4 Z" fill="#d7261e" stroke="#111" stroke-width="4" stroke-linejoin="round"/>
-      <path d="M38 6 Q50 30 62 6" fill="none" stroke="#fff" stroke-width="3"/>
-      <path d="M31 6 Q31 26 15 33" fill="none" stroke="#fff" stroke-width="3"/>
-      <path d="M69 6 Q69 26 85 33" fill="none" stroke="#fff" stroke-width="3"/>
-      <text x="50" y="52" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="13" letter-spacing="0.5" fill="#fff" stroke="#111" stroke-width="2" paint-order="stroke" id="jerseyName">PLAYER</text>
-      <text x="50" y="96" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="44" fill="#fff" stroke="#111" stroke-width="2.5" paint-order="stroke">10</text>
-    </svg></div>
-    <div>
-      <input id="playerName" type="text" maxlength="24" placeholder="PANGALAN MO (lalabas sa jersey)" aria-label="Player name">
-      <div class="rank-line">
-        <span class="badge" id="rankBadge">BENCH WARMER</span>
-        <span class="badge" id="winsBadge" style="background:#ffe1de">⭕ 0 DAYS</span>
-      </div>
-    </div>
-    <div class="xpbar"><i id="xpFill" style="width:0%"></i></div>
-    <div class="xpnote" id="xpNote">Susunod na rank: Rookie</div>
-  </section>
 
   <nav class="tabs">
     <button class="tab active" data-action="tab" data-tab="cal">📅 Kalendaryo</button>
@@ -403,16 +385,7 @@
       <button class="btn small" data-action="reset">✖ Reset all</button>
     </div>
     <input type="file" id="importFile" accept="application/json,.json" class="hidden">
-    <div class="sync">
-      <h4>☁️ SYNC: IISANG DATA SA BROWSER AT APP</h4>
-      <div class="row2">
-        <input id="syncCode" type="text" maxlength="40" placeholder="Sync code mo (lihim, 6+ letra)" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="btn small red" data-action="sync-connect">CONNECT</button>
-      </div>
-      <div class="status" id="syncStatus">Naka-save lang sa device na ito.</div>
-      <div class="hint">Ilagay ang parehong sync code sa Safari at sa home-screen app. Parang password ito, kaya huwag ipamigay.</div>
-      <button class="btn small ghost hidden" id="syncOff" data-action="sync-off" style="margin-top:8px">Disconnect</button>
-    </div>
+    <div class="sync-line" id="syncStatus">☁️ …</div>
     <p>Fan-made Slam Dunk page.</p>
   </footer>
 </div>
@@ -592,21 +565,6 @@
   $("sureYes").addEventListener("click", function(){ var cb=sureCb; sureClose(); if(cb) cb(); });
   $("sureOv").addEventListener("click", function(e){ if(e.target===this) sureClose(); });
 
-  // ---------- render: player ----------
-  function setJerseyName(){
-    var t=$("jerseyName"), n=(state.player.name||"").trim().toUpperCase().slice(0,12)||"PLAYER";
-    t.textContent=n;
-    if(n.length>8){ t.setAttribute("textLength","62"); t.setAttribute("lengthAdjust","spacingAndGlyphs"); } else { t.removeAttribute("textLength"); t.removeAttribute("lengthAdjust"); }
-  }
-  function renderPlayer(){
-    setJerseyName();
-    var p=points(), ri=rankIdx(p), r=RANKS[ri], next=RANKS[ri+1];
-    $("rankBadge").innerHTML=esc(r.name.toUpperCase())+'<span class="jp">'+r.jp+'</span>';
-    var f=fullDays(); $("winsBadge").textContent="⭕ "+f+(f===1?" DAY":" DAYS");
-    if(next){ $("xpFill").style.width=Math.max(2,(p-r.min)/(next.min-r.min)*100)+"%"; $("xpNote").textContent="Susunod na rank: "+next.name; }
-    else { $("xpFill").style.width="100%"; $("xpNote").textContent="Max rank. Ikaw na ang henyo ng court!"; }
-    if(document.activeElement!==$("playerName")) $("playerName").value=state.player.name||"";
-  }
 
   // ---------- render: calendar ----------
   var now=new Date(), viewY=now.getFullYear(), viewM=now.getMonth(), justCircled=null, openKey=null;
@@ -677,14 +635,12 @@
   }
 
   function renderQuote(){ $("quote").textContent="“"+QUOTES[(state.q||0)%QUOTES.length]+"”"; }
-  function renderAll(){ renderPlayer(); renderCalendar(); renderDay(); renderDrills(); renderQuote(); }
+  function renderAll(){ renderCalendar(); renderDay(); renderDrills(); renderQuote(); }
 
   function act(fn){
-    var before=rankIdx(points()), res=fn()||{};
+    var res=fn()||{};
     save(); renderAll();
-    var after=rankIdx(points());
     if(res.burst) setTimeout(function(){ burst.apply(null,res.burst); }, res.delay||0);
-    else if(after>before){ var r=RANKS[after]; burst("RANK UP!", r.jp, "You're now: "+r.name); }
   }
 
   // ---------- events ----------
@@ -751,14 +707,7 @@
         setTimeout(function(){ URL.revokeObjectURL(url); link.remove(); },500);
         return;
       case "import": $("importFile").click(); return;
-      case "sync-connect":
-        var code=$("syncCode").value.trim();
-        if(code.length<6){ alert("Gumamit ng sync code na may 6 o higit pang letra/numero."); return; }
-        connect(code); return;
-      case "sync-off":
-        sure("I-disconnect ang sync sa device na ito? Mananatili ang data dito.", function(){ setCode(""); syncUI(); });
-        return;
-      case "reset": sure("Mabubura LAHAT: tasks sa kalendaryo, daily drills at points.", function(){ state=blank(); save(); renderAll(); }); return;
+      case "reset": sure("Mabubura LAHAT: tasks sa kalendaryo at daily drills, pati sa cloud (browser, app at widget).", function(){ state=blank(); save(); renderAll(); }); return;
     }
   });
 
@@ -767,7 +716,6 @@
     if(e.key==="Escape"){ if($("sureOv").classList.contains("show")) sureClose(); else closeDay(); return; }
     if(e.key!=="Enter") return;
     if(e.target.id==="taskInput"){ e.preventDefault(); addTask(); }
-    if(e.target.id==="syncCode"){ e.preventDefault(); document.querySelector('[data-action="sync-connect"]').click(); }
     if(e.target.id==="drillInput"){ e.preventDefault(); document.querySelector('[data-action="add-drill"]').click(); }
   });
   $("importFile").addEventListener("change", function(){
@@ -778,31 +726,23 @@
     };
     r.readAsText(f); this.value="";
   });
-  $("playerName").addEventListener("input", function(){ state.player.name=this.value; save(); setJerseyName(); });
 
 
-  // ---------- CLOUD SYNC (Firebase Firestore, REST) ----------
-  // Ilagay dito ang galing sa Firebase console > Project settings > Your apps > Web app config
+  // ---------- CLOUD SYNC (Firebase Firestore, REST) — automatic, no code ----------
   var FIREBASE = {
     apiKey: "AIzaSyD3QlKaVDeDN2u3Va_Vebt2w_S2rd3ffuA",
     projectId: "slamdunk-91940"
   };
-  var SYNC_KEY="slamdunk-sync-code", pushT=null, pulling=false;
-  function getCode(){ try{ return localStorage.getItem(SYNC_KEY)||""; }catch(e){ return ""; } }
-  function setCode(c){ try{ if(c) localStorage.setItem(SYNC_KEY,c); else localStorage.removeItem(SYNC_KEY); }catch(e){} }
-  function configured(){ return !!(FIREBASE.apiKey && FIREBASE.projectId); }
-  function syncOn(){ return configured() && !!getCode(); }
-  function docUrl(){ return "https://firestore.googleapis.com/v1/projects/"+encodeURIComponent(FIREBASE.projectId)+"/databases/(default)/documents/goalsetter/"+encodeURIComponent(getCode())+"?key="+encodeURIComponent(FIREBASE.apiKey); }
+  var SYNC_ID = "aljo-sd-q6o2d7z7bzlpsi6rsou0";          // iisang dokumento para sa browser, app at widget
+  var OLD_CODE_KEY = "slamdunk-sync-code", MERGED_KEY = "slamdunk-merged-"+SYNC_ID, pushT=null, pulling=false, ready=false;
+  function docUrl(id){ return "https://firestore.googleapis.com/v1/projects/"+encodeURIComponent(FIREBASE.projectId)+"/databases/(default)/documents/goalsetter/"+encodeURIComponent(id||SYNC_ID)+"?key="+encodeURIComponent(FIREBASE.apiKey); }
   function clock(){ return new Date().toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}); }
   function status(t){ $("syncStatus").textContent=t; }
-  function syncUI(){
-    $("syncCode").value=getCode(); $("syncOff").classList.toggle("hidden", !getCode());
-    if(!configured()) status("⚠️ Kailangan pang ilagay ang Firebase config sa index.html bago gumana ang sync.");
-    else if(!getCode()) status("Naka-save lang sa device na ito.");
-  }
-  function fetchRemote(){
-    return fetch(docUrl(), {cache:"no-store"}).then(function(r){
-      if(r.status===404) return null;
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  function fetchRemote(id){
+    return fetch(docUrl(id), {cache:"no-store"}).then(function(r){
+      if(r.status===404 || r.status===403) return null;
       if(!r.ok) throw new Error("HTTP "+r.status);
       return r.json();
     }).then(function(doc){
@@ -811,51 +751,66 @@
       return data ? {updated:+((f.updated||{}).integerValue||0), state:JSON.parse(data)} : null;
     });
   }
-  function useRemote(rem){
-    state=normalize(rem.state); state.updated=rem.updated; saveLocal(); renderAll();
-    if(openKey) renderDay();
+  // pagsamahin ang dalawang data: walang task o drill na mawawala
+  function merge(a, b){
+    var newer = (b.updated||0) >= (a.updated||0) ? b : a, older = newer===a ? b : a;
+    var out = normalize(JSON.parse(JSON.stringify(newer))), old = normalize(JSON.parse(JSON.stringify(older)));
+    Object.keys(old.tasks).forEach(function(k){
+      var list = out.tasks[k] = out.tasks[k] || [];
+      old.tasks[k].forEach(function(t){
+        var m = list.filter(function(x){ return (x.id && x.id===t.id) || x.t===t.t; })[0];
+        if(!m) list.push(t); else if(t.done && !m.done && (older.updated||0) >= (newer.updated||0)) m.done = true;
+      });
+    });
+    old.drills.forEach(function(d){
+      var m = out.drills.filter(function(x){ return x.id===d.id || x.title===d.title; })[0];
+      if(!m) out.drills.push(d); else Object.keys(d.days).forEach(function(k){ if(d.days[k]) m.days[k]=true; });
+    });
+    Object.keys(old.log).forEach(function(k){ out.log[k] = Math.max(out.log[k]||0, old.log[k]||0); });
+    if(!(out.player.name||"").trim() && old.player.name) out.player.name = old.player.name;
+    return out;
   }
+  function useRemote(rem){ state=normalize(rem.state); state.updated=rem.updated; saveLocal(); renderAll(); if(openKey) renderDay(); }
   function push(){
-    if(!syncOn()) return Promise.resolve();
+    if(!ready) return Promise.resolve();
     clearTimeout(pushT); pushT=null;
-    var body={fields:{data:{stringValue:JSON.stringify(state)}, updated:{integerValue:String(state.updated||0)}}};
+    var body={fields:{data:{stringValue:JSON.stringify(state)}, updated:{integerValue:String(state.updated||Date.now())}}};
     return fetch(docUrl(), {method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)})
       .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); status("☁️ Synced "+clock()); })
-      .catch(function(){ status("⚠️ Offline. Naka-save muna sa device; isi-sync mamaya."); });
+      .catch(function(){ status("⚠️ Offline: naka-save muna sa device, isi-sync pagbalik ng internet."); });
   }
-  function schedulePush(){
-    if(!syncOn()) return;
-    status("☁️ Sinasync…"); clearTimeout(pushT); pushT=setTimeout(push, 700);
-  }
+  function schedulePush(){ if(!ready) return; status("☁️ Sinasync…"); clearTimeout(pushT); pushT=setTimeout(push, 600); }
   function pull(){
-    if(!syncOn() || pulling || pushT) return Promise.resolve();
+    if(!ready || pulling || pushT) return Promise.resolve();
     pulling=true;
     return fetchRemote().then(function(rem){
-      if(!rem){ return push(); }
+      if(!rem) return push();
       if(rem.updated > (state.updated||0)){ useRemote(rem); status("☁️ Synced "+clock()); }
-      else if((state.updated||0) > rem.updated){ return push(); }
+      else if((state.updated||0) > rem.updated) return push();
       else status("☁️ Synced "+clock());
-    }).catch(function(){ status("⚠️ Hindi maabot ang cloud. Naka-save muna sa device."); })
-      .then(function(){ pulling=false; });
+    }).catch(function(){ status("⚠️ Offline: naka-save muna sa device."); }).then(function(){ pulling=false; });
   }
-  function hasLocalData(){ return Object.keys(state.tasks).length>0 || state.drills.length>0; }
-  function connect(code){
-    if(!configured()){ syncUI(); return; }
-    setCode(code); syncUI(); status("☁️ Kumokonekta…");
-    fetchRemote().then(function(rem){
-      if(!rem){ if(!state.updated) state.updated=Date.now(); return push(); }
-      if(!hasLocalData()){ useRemote(rem); status("☁️ Synced "+clock()); return; }
-      sure("May data na sa cloud para sa code na ito. Kunin ang data mula sa cloud? (HINDI = ang data ng device na ito ang ise-save sa cloud)",
-        function(){ useRemote(rem); status("☁️ Synced "+clock()); },
-        function(){ state.updated=Date.now(); saveLocal(); push(); });
-    }).catch(function(){ status("⚠️ Hindi maka-connect. Tingnan ang Firebase config at internet."); });
+  // unang beses sa device na ito: pagsamahin ang lokal na data (at ang lumang sync code kung meron) sa cloud
+  function firstSync(){
+    var oldCode = lsGet(OLD_CODE_KEY);
+    var jobs = [fetchRemote(), (oldCode && oldCode!==SYNC_ID) ? fetchRemote(oldCode).catch(function(){ return null; }) : Promise.resolve(null)];
+    return Promise.all(jobs).then(function(res){
+      var merged = state;
+      [res[1], res[0]].forEach(function(rem){ if(rem){ var r=normalize(rem.state); r.updated=rem.updated; merged = merge(merged, r); } });
+      state = merged; state.updated = Date.now(); saveLocal(); renderAll();
+      lsSet(MERGED_KEY, "1");
+      return push();
+    });
   }
   function initSync(){
-    syncUI();
-    if(syncOn()) pull();
+    status("☁️ Kumokonekta…");
+    ready = true;
+    (lsGet(MERGED_KEY) ? pull() : firstSync()).catch(function(){ status("⚠️ Offline: naka-save muna sa device."); });
     document.addEventListener("visibilitychange", function(){ if(document.visibilityState==="visible") pull(); });
     window.addEventListener("focus", function(){ pull(); });
-    window.addEventListener("online", function(){ if(syncOn()) push(); });
+    window.addEventListener("pageshow", function(){ pull(); });
+    window.addEventListener("online", function(){ push(); });
+    setInterval(function(){ if(document.visibilityState==="visible") pull(); }, 30000);
   }
 
   // ---------- cover ----------
