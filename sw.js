@@ -1,7 +1,7 @@
-// SLAM DUNK — offline support
-// Ini-save sa phone ang page, icon at fonts para gumana kahit walang internet.
-// Kapag may internet, kinukuha pa rin ang pinakabagong bersyon ng page.
-const CACHE = "slamdunk-v1";
+// SLAM DUNK — offline + mabilis na pagbukas
+// Ipinapakita AGAD ang naka-save na kopya sa phone (walang hintay sa internet),
+// tapos tahimik na kinukuha ang bagong bersyon para sa susunod na bukas.
+const CACHE = "slamdunk-v2";
 const CORE = ["./", "./index.html", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
@@ -20,37 +20,35 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+function fromCacheThenUpdate(req, fallbackKey) {
+  return caches.open(CACHE).then((c) =>
+    c.match(req, { ignoreSearch: true }).then((hit) => {
+      const net = fetch(req)
+        .then((res) => { if (res && (res.ok || res.type === "opaque")) c.put(req, res.clone()); return res; })
+        .catch(() => null);
+      if (hit) return hit;                                   // agad-agad mula sa phone
+      return net.then((res) => res || (fallbackKey ? c.match(fallbackKey) : null) || Response.error());
+    })
+  );
+}
+
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  // cloud sync: laging diretso sa internet, hindi naka-cache
+  // cloud sync at pictures: laging diretso sa internet
   if (url.hostname.endsWith("googleapis.com") && !url.hostname.startsWith("fonts.")) return;
 
-  // fonts: cache muna (bihira magbago)
+  // fonts: mula sa phone kung meron na
   if (url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com") {
-    e.respondWith(
-      caches.open(CACHE).then((c) =>
-        c.match(req).then((hit) =>
-          hit || fetch(req).then((res) => { if (res.ok || res.type === "opaque") c.put(req, res.clone()); return res; })
-        )
-      )
-    );
+    e.respondWith(fromCacheThenUpdate(req));
     return;
   }
 
-  // ang page mismo: internet muna para updated, cache kapag offline
+  // ang page mismo + icon
   if (url.origin === self.location.origin) {
-    e.respondWith(
-      fetch(req)
-        .then((res) => {
-          if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
-          return res;
-        })
-        .catch(() =>
-          caches.match(req).then((hit) => hit || caches.match("./index.html") || caches.match("./"))
-        )
-    );
+    const isPage = req.mode === "navigate" || url.pathname.endsWith("/") || url.pathname.endsWith(".html");
+    e.respondWith(fromCacheThenUpdate(isPage ? new Request("./index.html") : req, isPage ? "./index.html" : null));
   }
 });
