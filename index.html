@@ -375,6 +375,35 @@
   .day-imgs{margin:8px 0 2px}
   .day-imgs .nimg{width:64px;height:64px}
   .cell .cimg{position:absolute;right:3px;top:4px;width:15px;height:15px;border:1.5px solid #1a1a1a;background:#d9d0bb center/cover no-repeat;transform:rotate(5deg);z-index:1;box-shadow:1px 1px 0 rgba(0,0,0,.35)}
+  .fw{position:fixed;z-index:45;right:16px;bottom:calc(20px + var(--safe-bottom))}
+  .fw-fab{
+    display:flex;align-items:center;gap:6px;height:52px;min-width:52px;padding:0 14px;justify-content:center;
+    border:3px solid var(--ink);border-radius:30px;background:var(--red);color:#fff;cursor:grab;
+    box-shadow:4px 4px 0 var(--ink);touch-action:none;-webkit-user-select:none;user-select:none;
+  }
+  .fw-fab .fw-ico{font-size:22px;line-height:1}
+  .fw-fab .fw-mini{font-family:Bangers,Impact,sans-serif;font-size:21px;letter-spacing:1px;line-height:1}
+  .fw-fab .fw-mini:empty{display:none}
+  .fw-fab.ring{animation:ring .5s infinite;background:var(--yellow);color:var(--ink)}
+  @keyframes ring{25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+  .fw-fab.dragging{cursor:grabbing;opacity:.9}
+  .fw-panel{
+    position:fixed;width:290px;max-width:calc(100vw - 16px);background:#fff;border:3px solid var(--ink);border-radius:6px;
+    box-shadow:5px 5px 0 var(--ink);padding:10px 12px 12px;animation:pop2 .18s ease-out;
+  }
+  .fw-tabs{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .fw-tab{flex:1;font-family:Bangers,Impact,sans-serif;font-size:16px;letter-spacing:1px;padding:5px 2px;border:2.5px solid var(--ink);background:#fff;border-radius:3px;cursor:pointer;color:var(--ink)}
+  .fw-tab.on{background:var(--ink);color:#fff}
+  .fw-x{flex:none;width:30px;height:30px;border:none;background:none;font-size:18px;cursor:pointer;color:var(--ink)}
+  .fw-time{font-family:Bangers,Impact,sans-serif;font-size:56px;line-height:1;text-align:center;letter-spacing:2px;margin:6px 0 8px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .fw-time.done{color:var(--red);animation:blink .6s infinite}
+  .fw-row{display:flex;gap:6px;justify-content:center;margin:6px 0}
+  .fw-sm{flex:1;font-family:Bangers,Impact,sans-serif;font-size:15px;letter-spacing:.5px;padding:5px 0;border:2px solid var(--ink);background:var(--yellow);border-radius:3px;cursor:pointer;color:var(--ink)}
+  .fw-sm.ghost{background:#fff}
+  .fw-ctl .btn{flex:1;font-size:19px;padding:8px 6px}
+  .fw-laps{margin:6px 0 0;padding:0 0 0 26px;max-height:140px;overflow:auto;font-family:Bangers,Impact,sans-serif;font-size:16px;letter-spacing:.5px}
+  .fw-laps li{display:flex;justify-content:space-between;padding:2px 4px 2px 0;border-bottom:1px dashed #ccc}
+  .fw-laps li span:last-child{color:var(--muted)}
   .hidden{display:none !important}
   @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
 </style>
@@ -478,6 +507,48 @@
     <div class="sync-line" id="syncStatus">☁️ …</div>
     <p>Fan-made Slam Dunk page.</p>
   </footer>
+</div>
+
+
+<!-- FLOATING TIMER / STOPWATCH -->
+<div class="fw" id="fw">
+  <button class="fw-fab" id="fwFab" aria-label="Timer at stopwatch"><span class="fw-ico">⏱</span><span class="fw-mini" id="fwMini"></span></button>
+  <div class="fw-panel hidden" id="fwPanel" role="dialog" aria-label="Timer at stopwatch">
+    <div class="fw-tabs">
+      <button class="fw-tab on" data-fwa="tab" data-tab="timer">TIMER</button>
+      <button class="fw-tab" data-fwa="tab" data-tab="sw">STOPWATCH</button>
+      <button class="fw-x" data-fwa="close" aria-label="Close">✕</button>
+    </div>
+    <div class="fw-pane" id="fwTimer">
+      <div class="fw-time" id="tDisp">05:00</div>
+      <div class="fw-row">
+        <button class="fw-sm" data-fwa="t-add" data-ms="-60000">−1m</button>
+        <button class="fw-sm" data-fwa="t-add" data-ms="60000">+1m</button>
+        <button class="fw-sm" data-fwa="t-add" data-ms="300000">+5m</button>
+        <button class="fw-sm" data-fwa="t-add" data-ms="600000">+10m</button>
+      </div>
+      <div class="fw-row">
+        <button class="fw-sm ghost" data-fwa="t-set" data-ms="300000">5</button>
+        <button class="fw-sm ghost" data-fwa="t-set" data-ms="900000">15</button>
+        <button class="fw-sm ghost" data-fwa="t-set" data-ms="1500000">25</button>
+        <button class="fw-sm ghost" data-fwa="t-set" data-ms="2700000">45</button>
+        <button class="fw-sm ghost" data-fwa="t-set" data-ms="3600000">60</button>
+      </div>
+      <div class="fw-row fw-ctl">
+        <button class="btn red" id="tStart" data-fwa="t-start">START</button>
+        <button class="btn" data-fwa="t-reset">RESET</button>
+      </div>
+    </div>
+    <div class="fw-pane hidden" id="fwSw">
+      <div class="fw-time" id="sDisp">00:00.0</div>
+      <div class="fw-row fw-ctl">
+        <button class="btn red" id="sStart" data-fwa="s-start">START</button>
+        <button class="btn" data-fwa="s-lap">LAP</button>
+        <button class="btn" data-fwa="s-reset">RESET</button>
+      </div>
+      <ol class="fw-laps" id="sLaps"></ol>
+    </div>
+  </div>
 </div>
 
 <!-- DAY POPUP -->
@@ -1503,6 +1574,135 @@
   if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){
     window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
   }
+
+
+  // ---------- FLOATING TIMER + STOPWATCH (naka-save sa device na ito) ----------
+  (function(){
+    var FKEY="slamdunk-timers", POSKEY="slamdunk-fw-pos";
+    var T={dur:300000, end:null, left:300000, run:false, done:false};
+    var S={start:null, acc:0, run:false, laps:[]};
+    var tab="timer", iv=null, actx=null;
+    try{ var sv=JSON.parse(localStorage.getItem(FKEY)||"null"); if(sv){ if(sv.T) T=sv.T; if(sv.S) S=sv.S; if(sv.tab) tab=sv.tab; } }catch(e){}
+    function persist(){ try{ localStorage.setItem(FKEY, JSON.stringify({T:T,S:S,tab:tab})); }catch(e){} }
+    function two(n){ return (n<10?"0":"")+n; }
+    function fmtT(ms){ var s=Math.max(0,Math.ceil(ms/1000)), h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return h? h+":"+two(m)+":"+two(x) : two(m)+":"+two(x); }
+    function fmtS(ms, tenths){ var s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; var base=(h?h+":"+two(m):two(m))+":"+two(x); return tenths? base+"."+Math.floor(ms%1000/100) : base; }
+    function swNow(){ return S.acc + (S.run ? Date.now()-S.start : 0); }
+    function tLeft(){ return T.run ? T.end-Date.now() : T.left; }
+
+    // ---- tunog (beep) — kailangang i-unlock sa tap sa iPhone ----
+    function unlockAudio(){ try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); }catch(e){} }
+    function beep(at, f){ var o=actx.createOscillator(), g=actx.createGain(); o.type="square"; o.frequency.value=f; g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.25, at+0.01); g.gain.exponentialRampToValueAtTime(0.0001, at+0.18); o.connect(g); g.connect(actx.destination); o.start(at); o.stop(at+0.2); }
+    function alarm(){
+      try{ unlockAudio(); var t0=actx.currentTime+0.05; for(var r=0;r<3;r++){ for(var i=0;i<3;i++) beep(t0+r*0.9+i*0.22, 1040); } }catch(e){}
+      setTimeout(function(){ playVoice(); }, 2900);
+      if(navigator.vibrate){ try{ navigator.vibrate([300,150,300,150,600]); }catch(e){} }
+    }
+
+    function render(){
+      var left=tLeft();
+      $("tDisp").textContent=fmtT(left);
+      $("tDisp").classList.toggle("done", T.done);
+      $("tStart").textContent = T.run ? "PAUSE" : (T.left<T.dur && !T.done && T.left>0 ? "TULOY" : "START");
+      $("sDisp").textContent=fmtS(swNow(), true);
+      $("sStart").textContent = S.run ? "PAUSE" : (S.acc>0 ? "TULOY" : "START");
+      $("sLaps").innerHTML=S.laps.map(function(l,i){ return '<li><span>Lap '+(i+1)+' · '+fmtS(l.lap,true)+'</span><span>'+fmtS(l.total,true)+'</span></li>'; }).reverse().join("");
+      document.querySelectorAll(".fw-tab").forEach(function(b){ b.classList.toggle("on", b.dataset.tab===tab); });
+      $("fwTimer").classList.toggle("hidden", tab!=="timer"); $("fwSw").classList.toggle("hidden", tab!=="sw");
+      // mini display sa floating button
+      var mini = T.done ? "00:00" : T.run ? fmtT(left) : S.run ? fmtS(swNow(), false) : "";
+      $("fwMini").textContent=mini;
+      $("fwFab").classList.toggle("ring", T.done);
+    }
+    function tick(){
+      if(T.run && T.end-Date.now()<=0){ T.run=false; T.left=0; T.done=true; persist(); alarm(); burst("TIME'S UP!","時間だ!","Tapos na ang oras!"); }
+      render();
+      var need = T.run || S.run || !$("fwPanel").classList.contains("hidden");
+      if(!need && iv){ clearInterval(iv); iv=null; }
+    }
+    function ensureTick(){ if(!iv) iv=setInterval(tick, 100); tick(); }
+
+    // ---- posisyon ng floating button (puwedeng i-drag) ----
+    var fw=$("fw"), fab=$("fwFab"), panel=$("fwPanel");
+    function applyPos(p){
+      var w=fab.offsetWidth||52, h=fab.offsetHeight||52, vw=window.innerWidth, vh=window.innerHeight;
+      var x=Math.min(Math.max(6, p.x), vw-w-6), y=Math.min(Math.max(6, p.y), vh-h-6);
+      fw.style.left=x+"px"; fw.style.top=y+"px"; fw.style.right="auto"; fw.style.bottom="auto";
+      return {x:x,y:y};
+    }
+    var pos=null; try{ pos=JSON.parse(localStorage.getItem(POSKEY)||"null"); }catch(e){}
+    if(pos) applyPos(pos);
+    window.addEventListener("resize", function(){ if(pos) pos=applyPos(pos); placePanel(); });
+    function placePanel(){
+      if(panel.classList.contains("hidden")) return;
+      var r=fab.getBoundingClientRect(), pw=panel.offsetWidth, ph=panel.offsetHeight, vw=window.innerWidth, vh=window.innerHeight;
+      var left=Math.min(Math.max(8, r.right-pw), vw-pw-8);
+      var top = (r.top-ph-10 > 8) ? r.top-ph-10 : Math.min(r.bottom+10, vh-ph-8);
+      panel.style.left=left+"px"; panel.style.top=Math.max(8,top)+"px";
+    }
+    var drag=null;
+    fab.addEventListener("pointerdown", function(e){
+      var r=fab.getBoundingClientRect();
+      drag={id:e.pointerId, sx:e.clientX, sy:e.clientY, ox:r.left, oy:r.top, moved:false};
+      try{ fab.setPointerCapture(e.pointerId); }catch(err){}
+    });
+    fab.addEventListener("pointermove", function(e){
+      if(!drag || e.pointerId!==drag.id) return;
+      var dx=e.clientX-drag.sx, dy=e.clientY-drag.sy;
+      if(!drag.moved && Math.abs(dx)+Math.abs(dy) < 7) return;
+      drag.moved=true; fab.classList.add("dragging");
+      pos=applyPos({x:drag.ox+dx, y:drag.oy+dy}); placePanel();
+    });
+    function endDrag(e){
+      if(!drag || (e && e.pointerId!==drag.id)) return;
+      var moved=drag.moved; drag=null; fab.classList.remove("dragging");
+      if(moved){ try{ localStorage.setItem(POSKEY, JSON.stringify(pos)); }catch(err){} return; }
+      // tap: buksan/isara ang panel
+      unlockAudio();
+      if(T.done){ T.done=false; T.left=T.dur; persist(); }
+      var open=panel.classList.contains("hidden");
+      panel.classList.toggle("hidden", !open);
+      if(open){ ensureTick(); placePanel(); } else render();
+    }
+    fab.addEventListener("pointerup", endDrag);
+    fab.addEventListener("pointercancel", function(e){ if(drag){ drag=null; fab.classList.remove("dragging"); } });
+
+    // ---- mga button sa panel ----
+    panel.addEventListener("click", function(e){
+      var b=e.target.closest("[data-fwa]"); if(!b) return;
+      var a=b.dataset.fwa; unlockAudio();
+      if(a==="close"){ panel.classList.add("hidden"); tick(); return; }
+      if(a==="tab"){ tab=b.dataset.tab; persist(); render(); placePanel(); return; }
+      if(a==="t-add" || a==="t-set"){
+        var ms=+b.dataset.ms, base=(a==="t-set")?0:tLeft();
+        var v=Math.max(0, Math.min(base+ms, 24*3600000));
+        if(a==="t-add" && T.done) v=Math.max(0, ms);
+        T.done=false;
+        if(T.run){ T.end=Date.now()+v; } else { T.left=v; T.dur=v; }
+        if(v===0 && T.run){ T.run=false; T.left=0; }
+        persist(); render(); return;
+      }
+      if(a==="t-start"){
+        if(T.run){ T.left=Math.max(0,T.end-Date.now()); T.run=false; }
+        else { if(T.left<=0){ T.left=T.dur||300000; } T.done=false; T.end=Date.now()+T.left; T.run=true; }
+        persist(); ensureTick(); return;
+      }
+      if(a==="t-reset"){ T.run=false; T.done=false; T.left=T.dur; persist(); render(); return; }
+      if(a==="s-start"){
+        if(S.run){ S.acc+=Date.now()-S.start; S.run=false; } else { S.start=Date.now(); S.run=true; }
+        persist(); ensureTick(); return;
+      }
+      if(a==="s-lap"){
+        if(!S.run && !S.acc) return;
+        var total=swNow(), prev=S.laps.length? S.laps[S.laps.length-1].total : 0;
+        S.laps.push({lap:total-prev, total:total}); persist(); render(); return;
+      }
+      if(a==="s-reset"){ S={start:null, acc:0, run:false, laps:[]}; persist(); render(); return; }
+    });
+    document.addEventListener("visibilitychange", function(){ if(document.visibilityState==="visible") ensureTick(); });
+    render();
+    if(T.run || S.run) ensureTick();
+  })();
 
   if(state.q==null){ state.q=Math.floor(Math.random()*QUOTES.length); saveLocal(); }
   initSync();
