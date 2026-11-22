@@ -56,7 +56,7 @@
 
   /* ---------- HERO ---------- */
   .hero{
-    position:relative;overflow:hidden;text-align:center;min-height:clamp(560px,150vw,680px);padding:calc(30px + var(--safe-top)) 16px 30px;
+    position:relative;overflow:hidden;text-align:center;min-height:clamp(560px,150vw,680px);padding:calc(30px + var(--safe-top)) 16px 44px;
     display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
     background-size:cover;background-position:56% 8%;border-bottom:4px solid var(--ink);
   }
@@ -305,7 +305,7 @@
   .tasks li .t{cursor:text}
   .tasks li .edit{flex:1;font-family:var(--hand);font-weight:600;font-size:24px;color:#141414;border:none;border-bottom:2.5px solid var(--red);background:rgba(255,236,150,.35);padding:2px 4px;border-radius:0;outline:none;min-width:0}
   .edit-hint{padding:0 16px 2px 52px;font-size:11px;color:#8a7a5c;font-style:italic}
-  .bg-chips{position:absolute;left:8px;bottom:-34px;display:flex;gap:6px;z-index:2}
+  .bg-chips{position:absolute;left:6px;bottom:-32px;display:flex;gap:6px;z-index:2}
   .chip-pen{font-family:var(--pen);font-size:13px;background:var(--yellow);border:2px solid #1a1a1a;padding:3px 10px;transform:rotate(-2deg);cursor:pointer;color:#1a1a1a;border-radius:2px}
   .chip-pen + .chip-pen{background:#fff;transform:rotate(2deg)}
   .notes-card{
@@ -361,13 +361,20 @@
   .mhl.erase{background:#fff;width:22px}
   .mhl.on{outline:2.5px solid var(--red);outline-offset:2px;transform:rotate(-4deg) scale(1.15)}
   .tasks.hl-mode li .t{cursor:pointer;outline:1.5px dashed rgba(215,38,30,.35);outline-offset:2px;border-radius:3px}
-  .hero-chips{position:absolute !important;right:10px;top:calc(58px + var(--safe-top));display:flex;flex-direction:column;align-items:flex-end;gap:6px;z-index:2}
-  .hero-chips .chip-pen{font-size:12px;box-shadow:2px 2px 0 #1a1a1a}
+  .hero-chips{position:absolute !important;right:8px;bottom:8px;display:flex;gap:6px;z-index:2}
+  .ico-chip{width:26px;height:26px;padding:0;border:1.5px solid rgba(17,17,17,.85);border-radius:50%;background:rgba(255,255,255,.75);font-size:13px;line-height:1;cursor:pointer;color:#1a1a1a;box-shadow:1px 1px 0 rgba(0,0,0,.5)}
+  .ico-chip:active{transform:translate(1px,1px)}
   .tasks li{position:relative;border-radius:4px;transition:background .15s}
   .tasks li .t{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .tasks li.lp{background:rgba(255,241,118,.35)}
   .tasks li.dragging{z-index:5;background:rgba(255,246,168,.97);box-shadow:3px 5px 0 rgba(0,0,0,.35);transition:none}
   .tasks.sorting{touch-action:none}
+  .title-row{display:flex;align-items:flex-end;gap:8px}
+  .title-row input.day-title{flex:1;min-width:0}
+  .day-img-btn{flex:none;width:30px;height:30px;font-size:15px;margin-bottom:2px;background:#fff}
+  .day-imgs{margin:8px 0 2px}
+  .day-imgs .nimg{width:64px;height:64px}
+  .cell .cimg{position:absolute;right:3px;top:4px;width:15px;height:15px;border:1.5px solid #1a1a1a;background:#d9d0bb center/cover no-repeat;transform:rotate(5deg);z-index:1;box-shadow:1px 1px 0 rgba(0,0,0,.35)}
   .hidden{display:none !important}
   @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
 </style>
@@ -396,8 +403,8 @@
   </div>
   <button class="voice-btn" id="voiceBtn" data-action="voice">🔊 Ako si Sakuragi, ang hari ng rebound!</button>
   <div class="hero-chips">
-    <button class="chip-pen" data-action="hero-bg">🖼 BG</button>
-    <button class="chip-pen hidden" id="heroReset" data-action="hero-bg-reset">↺ Default</button>
+    <button class="ico-chip" data-action="hero-bg" aria-label="Palitan ang background">🖼</button>
+    <button class="ico-chip hidden" id="heroReset" data-action="hero-bg-reset" aria-label="Default na background">↺</button>
   </div>
   <input type="file" id="heroFile" accept="image/*" class="hidden">
 </header>
@@ -414,7 +421,7 @@
   <!-- CALENDAR -->
   <section id="tab-cal" class="cal-wrap">
     <div class="section-title">KALENDARYO <span class="jp">予定</span></div>
-    <blockquote class="gori"><b>GORI:</b> “Lakasan mo lang loob mo, Sakuragi! Huwag kang matakot sa kahit sino. Maging makulit ka kung gusto mo, pero kapag seryoso na, matuto kang maging totoo. Hindi mo kailangang magyabang o maging bastos — ang mahalaga, hindi mo ikinahihiya kung sino ka!”</blockquote>
+    <blockquote class="gori"><b>GORI:</b> “Lakasan mo lang loob mo, Sakuragi! Huwag kang matakot sa kahit sino. Maging makulit ka kung gusto mo, pero kapag seryoso na, matuto kang maging totoo. Hindi mo kailangang magyabang o maging bastos, ang mahalaga hindi mo ikinahihiya kung sino ka!”</blockquote>
     <div class="cal" id="cal">
       <div class="cal-photo gundan-bg"></div>
       <span class="tape l"></span><span class="tape r"></span>
@@ -428,8 +435,8 @@
       <div class="grid" id="grid"></div>
       <span class="doodle d1">GO!! 天才</span>
       <div class="bg-chips">
-        <button class="chip-pen" data-action="cal-bg">🖼 BG</button>
-        <button class="chip-pen hidden" id="bgReset" data-action="cal-bg-reset">↺ Default</button>
+        <button class="ico-chip" data-action="cal-bg" aria-label="Palitan ang background ng kalendaryo">🖼</button>
+        <button class="ico-chip hidden" id="bgReset" data-action="cal-bg-reset" aria-label="Default na background">↺</button>
       </div>
     </div>
     <button class="notes-card" data-action="open-notes" id="notesCard">
@@ -480,7 +487,12 @@
     <div class="note-head">
       <div style="flex:1;min-width:0">
         <div class="note-date" id="noteDate">…</div>
-        <input class="day-title" id="dayTitle" type="text" maxlength="40" placeholder="Title" autocomplete="off">
+        <div class="title-row">
+          <input class="day-title" id="dayTitle" type="text" maxlength="40" placeholder="Title" autocomplete="off">
+          <button class="ico-chip day-img-btn" data-action="day-img" aria-label="Maglagay ng picture">🖼</button>
+        </div>
+        <div class="nimgs day-imgs" id="dayImgs"></div>
+        <input type="file" id="dayImgFile" accept="image/*" class="hidden">
       </div>
       <button class="x-btn" data-action="close-day" aria-label="Close">✕</button>
     </div>
@@ -775,9 +787,9 @@
   ];
 
   // ---------- storage ----------
-  function blank(){ return {player:{name:""}, tasks:{}, titles:{}, notes:[], bgId:null, heroId:null, drills:[], log:{}, q:null, updated:0}; }
+  function blank(){ return {player:{name:""}, tasks:{}, titles:{}, dayImgs:{}, notes:[], bgId:null, heroId:null, drills:[], log:{}, q:null, updated:0}; }
   function normalize(s){
-    s.updated=+s.updated||0; s.log=s.log||{}; s.player=s.player||{name:""}; s.tasks=s.tasks||{}; s.titles=s.titles||{}; s.notes=s.notes||[]; s.bgId=s.bgId||null; s.heroId=s.heroId||null; s.drills=s.drills||[];
+    s.updated=+s.updated||0; s.log=s.log||{}; s.player=s.player||{name:""}; s.tasks=s.tasks||{}; s.titles=s.titles||{}; s.dayImgs=s.dayImgs||{}; s.notes=s.notes||[]; s.bgId=s.bgId||null; s.heroId=s.heroId||null; s.drills=s.drills||[];
     s.notes.forEach(function(n){
       n.imgs=n.imgs||[]; n.title=n.title||"";
       if(n.html==null){ n.html = n.text ? esc(n.text).replace(/\n/g,"<br>") : ""; }
@@ -870,6 +882,7 @@
       }
       html+='<button class="'+cls+'" data-action="open-day" data-day="'+k+'" aria-label="'+esc(MONTHS[viewM]+" "+d)+(tasks.length?', '+done+' of '+tasks.length+' tapos':'')+'">'+
         '<span class="num">'+d+'</span>'+
+        ((state.dayImgs[k]||[]).length?'<span class="cimg" data-img="'+state.dayImgs[k][0]+'"></span>':'')+
         (state.titles[k]?'<span class="ttl">'+esc(state.titles[k])+'</span>':'')+
         (tasks.length?'<span class="tl">'+list+'</span>':'')+
         (full?loopSVG(k):'')+'</button>';
@@ -877,6 +890,7 @@
     var total=start+dim, trail=(7-total%7)%7;
     for(var e=0;e<trail;e++) html+='<div class="cell blank"></div>';
     $("grid").innerHTML=html;
+    document.querySelectorAll("#grid .cimg").forEach(function(el){ getImg(el.dataset.img).then(function(u){ if(u) el.style.backgroundImage='url("'+u+'")'; }); });
     justCircled=null;
   }
 
@@ -892,6 +906,9 @@
   function renderDay(){
     if(!openKey) return;
     if(document.activeElement!==$("dayTitle")) $("dayTitle").value = state.titles[openKey]||"";
+    var dimgs=state.dayImgs[openKey]||[];
+    $("dayImgs").innerHTML=dimgs.map(function(i){ return '<button class="nimg" data-action="view-img" data-ctx="day" data-img="'+i+'" aria-label="Picture"></button>'; }).join("");
+    document.querySelectorAll("#dayImgs .nimg").forEach(function(btn){ getImg(btn.dataset.img).then(function(u){ if(u) btn.style.backgroundImage='url("'+u+'")'; }); });
     var d=new Date(openKey+"T00:00:00"), tasks=dayTasks(openKey), done=tasks.filter(function(x){return x.done;}).length;
     $("noteDate").innerHTML=esc(MONTHS[d.getMonth()].slice(0,3).toUpperCase()+" "+d.getDate())+'<small>'+esc(DAYS[d.getDay()])+(openKey===today()?" — ngayon":"")+'</small>';
     $("noteProg").textContent = tasks.length ? (done===tasks.length ? "⭕ Tapos lahat! Henyo!" : done+" / "+tasks.length+" tapos") : "";
@@ -1209,8 +1226,15 @@
       if(openNoteId===nid) renderNoteDetail();
     }).catch(function(){ alert("Hindi mabuksan ang picture na iyan."); });
   });
-  function openLb(nid, id){ lbNote=nid; lbImgId=id; $("lbImg").src=""; getImg(id).then(function(u){ if(u) $("lbImg").src=u; }); $("lb").classList.add("show"); }
-  function closeLb(){ $("lb").classList.remove("show"); lbNote=lbImgId=null; }
+  var lbDay=null;
+  function openLb(nid, id, day){ lbNote=nid||null; lbDay=day||null; lbImgId=id; $("lbImg").src=""; getImg(id).then(function(u){ if(u) $("lbImg").src=u; }); $("lb").classList.add("show"); }
+  function closeLb(){ $("lb").classList.remove("show"); lbNote=lbImgId=lbDay=null; }
+  $("dayImgFile").addEventListener("change", function(){
+    var f=this.files[0], k=openKey; this.value=""; if(!f || !k) return;
+    compressImage(f, 1200, 0.72).then(saveNewImg).then(function(id){
+      act(function(){ (state.dayImgs[k]=state.dayImgs[k]||[]).push(id); });
+    }).catch(function(){ alert("Hindi mabuksan ang picture na iyan."); });
+  });
 
 
   // ---------- render: drills ----------
@@ -1283,10 +1307,20 @@
           imgs.forEach(forgetImg); renderNotes();
         });
         return;
-      case "view-img": openLb(b.dataset.nid, b.dataset.img); return;
+      case "view-img": if(b.dataset.ctx==="day") openLb(null, b.dataset.img, openKey); else openLb(b.dataset.nid, b.dataset.img); return;
+      case "day-img": saveEdit(); $("dayImgFile").click(); return;
       case "lb-close": closeLb(); return;
       case "lb-del":
-        var ln=findNote(lbNote), li=lbImgId; if(!ln) return;
+        var li=lbImgId;
+        if(lbDay){
+          var dk=lbDay;
+          sure("Burahin ang picture na ito?", function(){
+            act(function(){ state.dayImgs[dk]=(state.dayImgs[dk]||[]).filter(function(x){ return x!==li; }); if(!state.dayImgs[dk].length) delete state.dayImgs[dk]; });
+            forgetImg(li); closeLb();
+          });
+          return;
+        }
+        var ln=findNote(lbNote); if(!ln) return;
         sure("Burahin ang picture na ito?", function(){
           act(function(){ ln.imgs=ln.imgs.filter(function(x){ return x!==li; }); ln.updated=Date.now(); });
           forgetImg(li); closeLb(); renderNoteDetail();
@@ -1346,7 +1380,7 @@
         setTimeout(function(){ URL.revokeObjectURL(url); link.remove(); },500);
         return;
       case "import": $("importFile").click(); return;
-      case "reset": sure("Mabubura LAHAT: tasks, titles, notes at daily drills, pati sa cloud (browser, app at widget).", function(){ state=blank(); save(); renderAll(); }); return;
+      case "reset": sure("Mabubura LAHAT: tasks, titles, pictures, notes at daily drills, pati sa cloud (browser, app at widget).", function(){ state=blank(); save(); renderAll(); }); return;
     }
   });
 
@@ -1409,6 +1443,7 @@
     });
     Object.keys(old.log).forEach(function(k){ out.log[k] = Math.max(out.log[k]||0, old.log[k]||0); });
     Object.keys(old.titles).forEach(function(k){ if(!out.titles[k] && old.titles[k]) out.titles[k] = old.titles[k]; });
+    Object.keys(old.dayImgs).forEach(function(k){ var a=out.dayImgs[k]=out.dayImgs[k]||[]; old.dayImgs[k].forEach(function(i){ if(a.indexOf(i)<0) a.push(i); }); });
     old.notes.forEach(function(n){
       var m = out.notes.filter(function(x){ return x.id===n.id; })[0];
       if(!m) out.notes.push(n);
